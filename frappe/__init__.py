@@ -13,7 +13,7 @@ import os, sys, importlib, inspect, json
 from .exceptions import *
 from .utils.jinja import get_jenv, get_template, render_template
 
-__version__ = '8.0.27'
+__version__ = '8.0.32'
 __title__ = "Frappe Framework"
 
 local = Local()
@@ -1324,11 +1324,19 @@ def bold(text):
 
 def safe_eval(code, eval_globals=None, eval_locals=None):
 	'''A safer `eval`'''
+	whitelisted_globals = {
+		"int": int,
+		"float": float,
+		"long": long
+	}
+	
 	if '__' in code:
 		throw('Illegal rule {0}. Cannot use "__"'.format(bold(code)))
 
 	if not eval_globals:
 		eval_globals = {}
 	eval_globals['__builtins__'] = {}
+
+	eval_globals.update(whitelisted_globals)
 
 	return eval(code, eval_globals, eval_locals)
