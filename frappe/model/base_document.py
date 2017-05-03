@@ -365,11 +365,7 @@ class BaseDocument(object):
 		frappe.msgprint(_("{0} must be unique".format(label or fieldname)))
 
 		# this is used to preserve traceback
-<<<<<<< HEAD
-		raise frappe.UniqueValidationError((self.doctype, self.name, e)).with_traceback(traceback)
-=======
 		raise_(frappe.UniqueValidationError, (self.doctype, self.name, e), traceback)
->>>>>>> exception_py3
 
 	def db_set(self, fieldname, value=None, update_modified=True):
 		'''Set a value in the document object, update the timestamp and update the database.
