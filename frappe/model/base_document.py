@@ -307,12 +307,8 @@ class BaseDocument(object):
 						return
 
 					frappe.msgprint(_("Duplicate name {0} {1}").format(self.doctype, self.name))
-<<<<<<< HEAD
-					raise frappe.DuplicateEntryError((self.doctype, self.name, e)).with_traceback()
-=======
 					traceback = sys.exc_info()[2]
 					raise_(frappe.DuplicateEntryError, (self.doctype, self.name, e), traceback)
->>>>>>> exception_py3
 
 				elif "Duplicate" in cstr(e.args[1]):
 					# unique constraint
