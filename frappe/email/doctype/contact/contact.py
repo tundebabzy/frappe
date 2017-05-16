@@ -118,11 +118,18 @@ def contact_query(doctype, txt, searchfield, start, page_len, filters):
 	link_name = filters.pop('link_name')
 
 	condition = ""
-	for fieldname, value in filters.iteritems():
-		condition += " and {field}={value}".format(
-			field=fieldname,
-			value=value
-		)
+	try:
+		for fieldname, value in filters.iteritems():
+			condition += " and {field}={value}".format(
+				field=fieldname,
+				value=value
+			)
+	except AttributeError:
+		for fieldname, value in filters.items():
+			condition += " and {field}={value}".format(
+				field=fieldname,
+				value=value
+			)
 
 	return frappe.db.sql("""select
 			`tabContact`.name, `tabContact`.first_name, `tabContact`.last_name

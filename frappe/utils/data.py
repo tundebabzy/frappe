@@ -662,10 +662,16 @@ operator_map = {
 def evaluate_filters(doc, filters):
 	'''Returns true if doc matches filters'''
 	if isinstance(filters, dict):
-		for key, value in filters.iteritems():
-			f = get_filter(None, {key:value})
-			if not compare(doc.get(f.fieldname), f.operator, f.value):
-				return False
+		try:
+			for key, value in filters.iteritems():
+				f = get_filter(None, {key:value})
+				if not compare(doc.get(f.fieldname), f.operator, f.value):
+					return False
+		except AttributeError:
+			for key, value in filters.items():
+				f = get_filter(None, {key:value})
+				if not compare(doc.get(f.fieldname), f.operator, f.value):
+					return False
 
 	elif isinstance(filters, (list, tuple)):
 		for d in filters:

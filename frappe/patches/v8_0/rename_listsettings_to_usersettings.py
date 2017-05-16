@@ -32,12 +32,25 @@ def execute():
 
 		for user in frappe.db.get_all('User', {'user_type': 'System User'}):
 			defaults = frappe.defaults.get_defaults_for(user.name)
-			for key, value in defaults.iteritems():
-				if key.startswith('_list_settings:'):
-					doctype = key.replace('_list_settings:', '')
-					columns = ['`tab{1}`.`{0}`'.format(*c) for c in json.loads(value)]
-					for col in columns:
-						if "name as" in col:
-							columns.remove(col)
 
-					update_user_settings(doctype, {'fields': columns})
+			try:
+				for key, value in defaults.iteritems():
+					if key.startswith('_list_settings:'):
+						doctype = key.replace('_list_settings:', '')
+						columns = ['`tab{1}`.`{0}`'.format(*c) for c in json.loads(value)]
+						for col in columns:
+							if "name as" in col:
+								columns.remove(col)
+
+						update_user_settings(doctype, {'fields': columns})
+
+			except AttributeError:
+				for key, value in defaults.items():
+					if key.startswith('_list_settings:'):
+						doctype = key.replace('_list_settings:', '')
+						columns = ['`tab{1}`.`{0}`'.format(*c) for c in json.loads(value)]
+						for col in columns:
+							if "name as" in col:
+								columns.remove(col)
+
+						update_user_settings(doctype, {'fields': columns})

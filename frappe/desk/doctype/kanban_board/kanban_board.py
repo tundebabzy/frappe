@@ -91,24 +91,45 @@ def update_order(board_name, order):
 	order_dict = json.loads(order)
 
 	updated_cards = []
-	for col_name, cards in order_dict.iteritems():
-		order_list = []
-		for card in cards:
-			column = frappe.get_value(
-				doctype,
-				{'name': card},
-				fieldname
-			)
-			if column != col_name:
-				frappe.set_value(doctype, card, fieldname, col_name)
-				updated_cards.append(dict(
-					name=card,
-					column=col_name
-				))
 
-		for column in board.columns:
-			if column.column_name == col_name:
-				column.order = json.dumps(cards)
+	try:
+		for col_name, cards in order_dict.iteritems():
+			order_list = []
+			for card in cards:
+				column = frappe.get_value(
+					doctype,
+					{'name': card},
+					fieldname
+				)
+				if column != col_name:
+					frappe.set_value(doctype, card, fieldname, col_name)
+					updated_cards.append(dict(
+						name=card,
+						column=col_name
+					))
+
+			for column in board.columns:
+				if column.column_name == col_name:
+					column.order = json.dumps(cards)
+	except AttributeError:
+		for col_name, cards in order_dict.items():
+			order_list = []
+			for card in cards:
+				column = frappe.get_value(
+					doctype,
+					{'name': card},
+					fieldname
+				)
+				if column != col_name:
+					frappe.set_value(doctype, card, fieldname, col_name)
+					updated_cards.append(dict(
+						name=card,
+						column=col_name
+					))
+
+			for column in board.columns:
+				if column.column_name == col_name:
+					column.order = json.dumps(cards)
 
 	board.save()
 	return board, updated_cards

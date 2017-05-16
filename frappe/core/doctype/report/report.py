@@ -117,11 +117,18 @@ class Report(Document):
 			_filters = params.get('filters') or []
 
 			if filters:
-				for key, value in filters.iteritems():
-					condition, _value = '=', value
-					if isinstance(value, (list, tuple)):
-						condition, _value = value
-					_filters.append([key, condition, _value])
+				try:
+					for key, value in filters.iteritems():
+						condition, _value = '=', value
+						if isinstance(value, (list, tuple)):
+							condition, _value = value
+						_filters.append([key, condition, _value])
+				except AttributeError:
+					for key, value in filters.items():
+						condition, _value = '=', value
+						if isinstance(value, (list, tuple)):
+							condition, _value = value
+						_filters.append([key, condition, _value])
 
 			def _format(parts):
 				# sort by is saved as DocType.fieldname, covert it to sql

@@ -756,12 +756,20 @@ def get_doc_hooks():
 	if not hasattr(local, 'doc_events_hooks'):
 		hooks = get_hooks('doc_events', {})
 		out = {}
-		for key, value in hooks.iteritems():
-			if isinstance(key, tuple):
-				for doctype in key:
-					append_hook(out, doctype, value)
-			else:
-				append_hook(out, key, value)
+		try:
+			for key, value in hooks.iteritems():
+				if isinstance(key, tuple):
+					for doctype in key:
+						append_hook(out, doctype, value)
+				else:
+					append_hook(out, key, value)
+		except AttributeError:
+			for key, value in hooks.items():
+				if isinstance(key, tuple):
+					for doctype in key:
+						append_hook(out, doctype, value)
+				else:
+					append_hook(out, key, value)
 
 		local.doc_events_hooks = out
 

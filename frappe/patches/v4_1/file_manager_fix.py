@@ -49,9 +49,15 @@ def get_replaced_files():
 	old_files = dict(frappe.db.sql("select name, file_name from `tabFile` where ifnull(content_hash, '')=''"))
 	invfiles = invert_dict(new_files)
 
-	for nname, nfilename in new_files.iteritems():
-		if 'files/' + nfilename in old_files.values():
-			ret.append((nfilename, invfiles[nfilename]))
+	try:
+		for nname, nfilename in new_files.iteritems():
+			if 'files/' + nfilename in old_files.values():
+				ret.append((nfilename, invfiles[nfilename]))
+
+	except AttributeError:
+		for nname, nfilename in new_files.items():
+			if 'files/' + nfilename in old_files.values():
+				ret.append((nfilename, invfiles[nfilename]))
 	return ret
 
 def rename_replacing_files():
@@ -82,11 +88,21 @@ def rename_replacing_files():
 
 def invert_dict(ddict):
 	ret = {}
-	for k,v in ddict.iteritems():
-		if not ret.get(v):
-			ret[v] = [k]
-		else:
-			ret[v].append(k)
+
+	try:
+		for k,v in ddict.iteritems():
+			if not ret.get(v):
+				ret[v] = [k]
+			else:
+				ret[v].append(k)
+
+	except AttributeError:
+		for k,v in ddict.items():
+			if not ret.get(v):
+				ret[v] = [k]
+			else:
+				ret[v].append(k)
+
 	return ret
 
 def get_file_name(fname, hash):

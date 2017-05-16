@@ -147,8 +147,12 @@ class RedisWrapper(redis.Redis):
 			pass
 
 	def hgetall(self, name):
-		return {key: pickle.loads(value) for key, value in
-			super(redis.Redis, self).hgetall(self.make_key(name)).iteritems()}
+		try:
+			return {key: pickle.loads(value) for key, value in
+				super(redis.Redis, self).hgetall(self.make_key(name)).iteritems()}
+		except AttributeError:
+			return {key: pickle.loads(value) for key, value in
+			    super(redis.Redis, self).hgetall(self.make_key(name)).items()}
 
 	def hget(self, name, key, generator=None, shared=False):
 		_name = self.make_key(name, shared=shared)

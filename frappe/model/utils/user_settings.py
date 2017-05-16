@@ -36,10 +36,18 @@ def update_user_settings(doctype, user_settings, for_update=False):
 
 def sync_user_settings():
 	'''Sync from cache to database (called asynchronously via the browser)'''
-	for key, data in frappe.cache().hgetall('_user_settings').iteritems():
-		doctype, user = key.split('::')
-		frappe.db.sql('''insert into __UserSettings (user, doctype, data) values (%s, %s, %s)
-			on duplicate key update data=%s''', (user, doctype, data, data))
+	try:
+		for key, data in frappe.cache().hgetall('_user_settings').iteritems():
+			doctype, user = key.split('::')
+			frappe.db.sql('''insert into __UserSettings (user, doctype, data) values (%s, %s, %s)
+				on duplicate key update data=%s''', (user, doctype, data, data))
+
+	except AttributeError:
+		for key, data in frappe.cache().hgetall('_user_settings').items():
+			doctype, user = key.split('::')
+			frappe.db.sql('''insert into __UserSettings (user, doctype, data) values (%s, %s, %s)
+				on duplicate key update data=%s''', (user, doctype, data, data))
+
 
 @frappe.whitelist()
 def save(doctype, user_settings):

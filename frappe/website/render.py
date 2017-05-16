@@ -78,8 +78,12 @@ def build_response(path, data, http_status_code, headers=None):
 	response.headers[b"X-From-Cache"] = frappe.local.response.from_cache or False
 
 	if headers:
-		for key, val in headers.iteritems():
-			response.headers[bytes(key)] = val.encode("utf-8")
+		try:
+			for key, val in headers.iteritems():
+				response.headers[bytes(key)] = val.encode("utf-8")
+		except AttributeError:
+			for key, val in headers.items():
+				response.headers[bytes(key)] = val.encode("utf-8")
 
 	return response
 

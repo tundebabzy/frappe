@@ -308,9 +308,16 @@ def sync_from_app(app):
 
 	if isinstance(modules, dict):
 		modules_list = []
-		for m, desktop_icon in modules.iteritems():
-			desktop_icon['module_name'] = m
-			modules_list.append(desktop_icon)
+
+		try:
+			for m, desktop_icon in modules.iteritems():
+				desktop_icon['module_name'] = m
+				modules_list.append(desktop_icon)
+		except AttributeError:
+			for m, desktop_icon in modules.items():
+				desktop_icon['module_name'] = m
+				modules_list.append(desktop_icon)
+
 	else:
 		modules_list = modules
 
