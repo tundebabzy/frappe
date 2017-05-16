@@ -654,9 +654,16 @@ class Database:
 				where field in ({0}) and
 					doctype=%s'''.format(', '.join(['%s']*len(keys))),
 					keys + [dt], debug=debug)
-			for key, value in to_update.iteritems():
-				self.sql('''insert into tabSingles(doctype, field, value) values (%s, %s, %s)''',
-					(dt, key, value), debug=debug)
+
+			try:
+				for key, value in to_update.iteritems():
+					self.sql('''insert into tabSingles(doctype, field, value) values (%s, %s, %s)''',
+						(dt, key, value), debug=debug)
+
+			except AttributeError:
+				for key, value in to_update.items():
+					self.sql('''insert into tabSingles(doctype, field, value) values (%s, %s, %s)''',
+						(dt, key, value), debug=debug)
 
 		if dt in self.value_cache:
 			del self.value_cache[dt]
