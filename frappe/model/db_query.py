@@ -171,8 +171,14 @@ class DatabaseQuery(object):
 			if isinstance(filters, dict):
 				fdict = filters
 				filters = []
-				for key, value in fdict.iteritems():
-					filters.append(make_filter_tuple(self.doctype, key, value))
+
+				try:
+					for key, value in fdict.iteritems():
+						filters.append(make_filter_tuple(self.doctype, key, value))
+				except AttributeError:
+					for key, value in fdict.items():
+						filters.append(make_filter_tuple(self.doctype, key, value))
+
 			setattr(self, filter_name, filters)
 
 	def extract_tables(self):
