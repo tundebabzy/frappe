@@ -72,8 +72,12 @@ class BaseDocument(object):
 			if key in d:
 				self.set(key, d.get(key))
 
-		for key, value in d.iteritems():
-			self.set(key, value)
+		try:
+			for key, value in d.iteritems():
+				self.set(key, value)
+		except AttributeError:
+			for key, value in d.items():
+				self.set(key, value)
 
 		return self
 
@@ -83,10 +87,17 @@ class BaseDocument(object):
 
 		if "doctype" in d:
 			self.set("doctype", d.get("doctype"))
-		for key, value in d.iteritems():
-			# dont_update_if_missing is a list of fieldnames, for which, you don't want to set default value
-			if (self.get(key) is None) and (value is not None) and (key not in self.dont_update_if_missing):
-				self.set(key, value)
+
+		try:
+			for key, value in d.iteritems():
+				# dont_update_if_missing is a list of fieldnames, for which, you don't want to set default value
+				if (self.get(key) is None) and (value is not None) and (key not in self.dont_update_if_missing):
+					self.set(key, value)
+		except AttributeError:
+			for key, value in d.items():
+				# dont_update_if_missing is a list of fieldnames, for which, you don't want to set default value
+				if (self.get(key) is None) and (value is not None) and (key not in self.dont_update_if_missing):
+					self.set(key, value)
 
 	def get_db_value(self, key):
 		return frappe.db.get_value(self.doctype, self.name, key)
@@ -565,20 +576,38 @@ class BaseDocument(object):
 		if frappe.flags.in_install:
 			return
 
-		for fieldname, value in self.get_valid_dict().iteritems():
-			df = self.meta.get_field(fieldname)
-			if df and df.fieldtype in type_map and type_map[df.fieldtype][0]=="varchar":
-				max_length = cint(df.get("length")) or cint(varchar_len)
+		try:
+			for fieldname, value in self.get_valid_dict().iteritems():
+				df = self.meta.get_field(fieldname)
+				if df and df.fieldtype in type_map and type_map[df.fieldtype][0]=="varchar":
+					max_length = cint(df.get("length")) or cint(varchar_len)
 
-				if len(cstr(value)) > max_length:
-					if self.parentfield and self.idx:
-						reference = _("{0}, Row {1}").format(_(self.doctype), self.idx)
+					if len(cstr(value)) > max_length:
+						if self.parentfield and self.idx:
+							reference = _("{0}, Row {1}").format(_(self.doctype), self.idx)
 
-					else:
-						reference = "{0} {1}".format(_(self.doctype), self.name)
+						else:
+							reference = "{0} {1}".format(_(self.doctype), self.name)
 
-					frappe.throw(_("{0}: '{1}' ({3}) will get truncated, as max characters allowed is {2}")\
-						.format(reference, _(df.label), max_length, value), frappe.CharacterLengthExceededError, title=_('Value too big'))
+						frappe.throw(_("{0}: '{1}' ({3}) will get truncated, as max characters allowed is {2}")\
+							.format(reference, _(df.label), max_length, value), frappe.CharacterLengthExceededError, title=_('Value too big'))
+
+		except AttributeError:
+			for fieldname, value in self.get_valid_dict().items():
+				df = self.meta.get_field(fieldname)
+				if df and df.fieldtype in type_map and type_map[df.fieldtype][0] == "varchar":
+					max_length = cint(df.get("length")) or cint(varchar_len)
+
+					if len(cstr(value)) > max_length:
+						if self.parentfield and self.idx:
+							reference = _("{0}, Row {1}").format(_(self.doctype), self.idx)
+
+						else:
+							reference = "{0} {1}".format(_(self.doctype), self.name)
+
+						frappe.throw(_("{0}: '{1}' ({3}) will get truncated, as max characters allowed is {2}") \
+						             .format(reference, _(df.label), max_length, value),
+						             frappe.CharacterLengthExceededError, title=_('Value too big'))
 
 	def _validate_update_after_submit(self):
 		# get the full doc with children
