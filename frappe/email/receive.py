@@ -3,7 +3,6 @@
 
 from __future__ import unicode_literals
 from six.moves import range
-from six import iteritems
 import time, _socket, poplib, imaplib, email, email.utils, datetime, chardet, re, hashlib
 from email_reply_parser import EmailReplyParser
 from email.header import decode_header
