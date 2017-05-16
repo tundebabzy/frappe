@@ -120,7 +120,10 @@ def get_dict(fortype, name=None):
 		message_dict.update(get_dict_from_hooks(fortype, name))
 
 		# remove untranslated
-		message_dict = {k:v for k, v in message_dict.iteritems() if k!=v}
+		try:
+			message_dict = {k:v for k, v in message_dict.iteritems() if k!=v}
+		except AttributeError:
+			message_dict = {k: v for k, v in message_dict.items() if k != v}
 
 		translation_assets[asset_key] = message_dict
 
