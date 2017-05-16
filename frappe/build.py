@@ -89,8 +89,12 @@ def make_asset_dirs(make_copy=False):
 def build(no_compress=False, verbose=False):
 	assets_path = os.path.join(frappe.local.sites_path, "assets")
 
-	for target, sources in get_build_maps().iteritems():
-		pack(os.path.join(assets_path, target), sources, no_compress, verbose)
+	try:
+		for target, sources in get_build_maps().iteritems():
+			pack(os.path.join(assets_path, target), sources, no_compress, verbose)
+	except AttributeError:
+		for target, sources in get_build_maps().items():
+			pack(os.path.join(assets_path, target), sources, no_compress, verbose)
 
 def get_build_maps():
 	"""get all build.jsons with absolute paths"""
@@ -113,6 +117,20 @@ def get_build_maps():
 							source_paths.append(s)
 
 						build_maps[target] = source_paths
+
+				except AttributeError:
+					for target, sources in json.loads(f.read()).items():
+						# update app path
+						source_paths = []
+						for source in sources:
+							if isinstance(source, list):
+								s = frappe.get_pymodule_path(source[0], *source[1].split("/"))
+							else:
+								s = os.path.join(app_path, source)
+							source_paths.append(s)
+
+						build_maps[target] = source_paths
+
 				except ValueError as e:
 					print(path)
 					print('JSON syntax error {0}'.format(str(e)))
@@ -184,15 +202,27 @@ def scrub_html_template(content):
 	return content.replace("'", "\'")
 
 def files_dirty():
-	for target, sources in get_build_maps().iteritems():
-		for f in sources:
-			if ':' in f: f, suffix = f.split(':')
-			if not os.path.exists(f) or os.path.isdir(f): continue
-			if os.path.getmtime(f) != timestamps.get(f):
-				print(f + ' dirty')
-				return True
+	try:
+		for target, sources in get_build_maps().iteritems():
+			for f in sources:
+				if ':' in f: f, suffix = f.split(':')
+				if not os.path.exists(f) or os.path.isdir(f): continue
+				if os.path.getmtime(f) != timestamps.get(f):
+					print(f + ' dirty')
+					return True
+
+	except AttributeError:
+		for target, sources in get_build_maps().items():
+			for f in sources:
+				if ':' in f: f, suffix = f.split(':')
+				if not os.path.exists(f) or os.path.isdir(f): continue
+				if os.path.getmtime(f) != timestamps.get(f):
+					print(f + ' dirty')
+					return True
+
 	else:
 		return False
+
 
 def compile_less():
 	from distutils.spawn import find_executable
