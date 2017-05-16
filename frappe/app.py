@@ -114,8 +114,12 @@ def init_request(request):
 	frappe.local.http_request = frappe.auth.HTTPRequest()
 
 def make_form_dict(request):
-	frappe.local.form_dict = frappe._dict({ k:v[0] if isinstance(v, (list, tuple)) else v \
-		for k, v in (request.form or request.args).iteritems() })
+	try:
+		frappe.local.form_dict = frappe._dict({ k:v[0] if isinstance(v, (list, tuple)) else v \
+			for k, v in (request.form or request.args).iteritems() })
+	except AttributeError:
+		frappe.local.form_dict = frappe._dict({k: v[0] if isinstance(v, (list, tuple)) else v \
+		    for k, v in (request.form or request.args).items()})
 
 	if "_" in frappe.local.form_dict:
 		# _ is passed by $.ajax so that the request is not cached by the browser. So, remove _ from form_dict
