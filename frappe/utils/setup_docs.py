@@ -294,85 +294,162 @@ class setup_docs(object):
 				return '{% raw %}' + matchobj.group(0) + '{% endraw %}'
 
 		cnt = 0
-		for path, context in pages.iteritems():
-			print("Writing {0}".format(path))
+		try:
+			for path, context in pages.iteritems():
+				print("Writing {0}".format(path))
 
-			# set this for get_context / website libs
-			frappe.local.path = path
+				# set this for get_context / website libs
+				frappe.local.path = path
 
-			context.update({
-				"page_links_with_extn": True,
-				"relative_links": True,
-				"docs_base_url": self.docs_base_url,
-				"url_prefix": self.docs_base_url,
-			})
+				context.update({
+					"page_links_with_extn": True,
+					"relative_links": True,
+					"docs_base_url": self.docs_base_url,
+					"url_prefix": self.docs_base_url,
+				})
 
-			context.update(self.app_context)
+				context.update(self.app_context)
 
-			context = get_context(path, context)
+				context = get_context(path, context)
 
-			if context.basename:
-				target_path_fragment = context.route + '.html'
-			else:
-				# index.html
-				target_path_fragment = context.route + '/index.html'
-
-			target_filename = os.path.join(self.target, target_path_fragment.strip('/'))
-
-			context.brand_html = context.app.brand_html
-			context.top_bar_items = context.favicon = None
-
-			self.docs_config.get_context(context)
-
-			if not context.brand_html:
-				if context.docs_icon:
-					context.brand_html = '<i class="{0}"></i> {1}'.format(context.docs_icon, context.app.title)
+				if context.basename:
+					target_path_fragment = context.route + '.html'
 				else:
-					context.brand_html = context.app.title
+					# index.html
+					target_path_fragment = context.route + '/index.html'
 
-			if not context.top_bar_items:
-				context.top_bar_items = [
-					# {"label": "Contents", "url": self.docs_base_url + "/contents.html", "right": 1},
-					{"label": "User Guide", "url": self.docs_base_url + "/user", "right": 1},
-					{"label": "Developer Docs", "url": self.docs_base_url + "/current", "right": 1},
-				]
+				target_filename = os.path.join(self.target, target_path_fragment.strip('/'))
 
-			context.top_bar_items = [{"label": '<i class="octicon octicon-search"></i>', "url": "#",
-				"right": 1}] + context.top_bar_items
+				context.brand_html = context.app.brand_html
+				context.top_bar_items = context.favicon = None
 
-			context.parents = []
-			parent_route = os.path.dirname(context.route)
-			if pages[parent_route]:
-				context.parents = [pages[parent_route]]
+				self.docs_config.get_context(context)
 
-			context.only_static = True
-			context.base_template_path = "templates/autodoc/base_template.html"
+				if not context.brand_html:
+					if context.docs_icon:
+						context.brand_html = '<i class="{0}"></i> {1}'.format(context.docs_icon, context.app.title)
+					else:
+						context.brand_html = context.app.title
 
-			if '<code>' in context.source:
-				context.source = re.sub('\<code\>(.*)\</code\>', raw_replacer, context.source)
+				if not context.top_bar_items:
+					context.top_bar_items = [
+						# {"label": "Contents", "url": self.docs_base_url + "/contents.html", "right": 1},
+						{"label": "User Guide", "url": self.docs_base_url + "/user", "right": 1},
+						{"label": "Developer Docs", "url": self.docs_base_url + "/current", "right": 1},
+					]
 
-			html = frappe.render_template(context.source, context)
+				context.top_bar_items = [{"label": '<i class="octicon octicon-search"></i>', "url": "#",
+					"right": 1}] + context.top_bar_items
 
-			html = make_toc(context, html, self.app)
+				context.parents = []
+				parent_route = os.path.dirname(context.route)
+				if pages[parent_route]:
+					context.parents = [pages[parent_route]]
 
-			if not "<!-- autodoc -->" in html:
-				html = html.replace('<!-- edit-link -->',
-					edit_link.format(\
-						source_link = self.docs_config.source_link,
-						app_name = self.app,
-						branch = context.app.branch,
-						target = context.template))
+				context.only_static = True
+				context.base_template_path = "templates/autodoc/base_template.html"
 
-			if not os.path.exists(os.path.dirname(target_filename)):
-				os.makedirs(os.path.dirname(target_filename))
+				if '<code>' in context.source:
+					context.source = re.sub('\<code\>(.*)\</code\>', raw_replacer, context.source)
 
-			with open(target_filename, "w") as htmlfile:
-				htmlfile.write(html.encode("utf-8"))
+				html = frappe.render_template(context.source, context)
 
-				cnt += 1
+				html = make_toc(context, html, self.app)
+
+				if not "<!-- autodoc -->" in html:
+					html = html.replace('<!-- edit-link -->',
+						edit_link.format(\
+							source_link = self.docs_config.source_link,
+							app_name = self.app,
+							branch = context.app.branch,
+							target = context.template))
+
+				if not os.path.exists(os.path.dirname(target_filename)):
+					os.makedirs(os.path.dirname(target_filename))
+
+				with open(target_filename, "w") as htmlfile:
+					htmlfile.write(html.encode("utf-8"))
+
+					cnt += 1
+		except AttributeError:
+			for path, context in pages.items():
+				print("Writing {0}".format(path))
+
+				# set this for get_context / website libs
+				frappe.local.path = path
+
+				context.update({
+					"page_links_with_extn": True,
+					"relative_links": True,
+					"docs_base_url": self.docs_base_url,
+					"url_prefix": self.docs_base_url,
+				})
+
+				context.update(self.app_context)
+
+				context = get_context(path, context)
+
+				if context.basename:
+					target_path_fragment = context.route + '.html'
+				else:
+					# index.html
+					target_path_fragment = context.route + '/index.html'
+
+				target_filename = os.path.join(self.target, target_path_fragment.strip('/'))
+
+				context.brand_html = context.app.brand_html
+				context.top_bar_items = context.favicon = None
+
+				self.docs_config.get_context(context)
+
+				if not context.brand_html:
+					if context.docs_icon:
+						context.brand_html = '<i class="{0}"></i> {1}'.format(context.docs_icon, context.app.title)
+					else:
+						context.brand_html = context.app.title
+
+				if not context.top_bar_items:
+					context.top_bar_items = [
+						# {"label": "Contents", "url": self.docs_base_url + "/contents.html", "right": 1},
+						{"label": "User Guide", "url": self.docs_base_url + "/user", "right": 1},
+						{"label": "Developer Docs", "url": self.docs_base_url + "/current", "right": 1},
+					]
+
+				context.top_bar_items = [{"label": '<i class="octicon octicon-search"></i>', "url": "#",
+				                          "right": 1}] + context.top_bar_items
+
+				context.parents = []
+				parent_route = os.path.dirname(context.route)
+				if pages[parent_route]:
+					context.parents = [pages[parent_route]]
+
+				context.only_static = True
+				context.base_template_path = "templates/autodoc/base_template.html"
+
+				if '<code>' in context.source:
+					context.source = re.sub('\<code\>(.*)\</code\>', raw_replacer, context.source)
+
+				html = frappe.render_template(context.source, context)
+
+				html = make_toc(context, html, self.app)
+
+				if not "<!-- autodoc -->" in html:
+					html = html.replace('<!-- edit-link -->',
+					                    edit_link.format( \
+						                    source_link=self.docs_config.source_link,
+						                    app_name=self.app,
+						                    branch=context.app.branch,
+						                    target=context.template))
+
+				if not os.path.exists(os.path.dirname(target_filename)):
+					os.makedirs(os.path.dirname(target_filename))
+
+				with open(target_filename, "w") as htmlfile:
+					htmlfile.write(html.encode("utf-8"))
+
+					cnt += 1
 
 		print("Wrote {0} files".format(cnt))
-
 
 	def copy_assets(self):
 		"""Copy jquery, bootstrap and other assets to files"""
