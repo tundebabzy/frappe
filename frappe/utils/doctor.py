@@ -118,8 +118,13 @@ def doctor(site=None):
 			print("Queue:", queue)
 			print("Number of Jobs: ", job_count[queue])
 			print("Methods:")
-			for method, count in jobs_per_queue[queue].iteritems():
-				print("{0} : {1}".format(method, count))
+			try:
+				for method, count in jobs_per_queue[queue].iteritems():
+					print("{0} : {1}".format(method, count))
+			except AttributeError:
+				for method, count in jobs_per_queue[queue].items():
+					print("{0} : {1}".format(method, count))
+
 			print("------------")
 
 	return True
