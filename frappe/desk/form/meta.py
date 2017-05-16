@@ -153,8 +153,12 @@ class FormMeta(Meta):
 			app = module.__name__.split(".")[0]
 			templates = {}
 			if hasattr(module, "form_grid_templates"):
-				for key, path in module.form_grid_templates.iteritems():
-					templates[key] = get_html_format(frappe.get_app_path(app, path))
+				try:
+					for key, path in module.form_grid_templates.iteritems():
+						templates[key] = get_html_format(frappe.get_app_path(app, path))
+				except AttributeError:
+					for key, path in module.form_grid_templates.items():
+						templates[key] = get_html_format(frappe.get_app_path(app, path))
 
 				self.set("__form_grid_templates", templates)
 
