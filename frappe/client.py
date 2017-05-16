@@ -234,6 +234,13 @@ def bulk_update(docs):
 			doc = frappe.get_doc(doctype, docname)
 			doc.update(ddoc)
 			doc.save()
+		except AttributeError:
+			ddoc = {key: val for key, val in doc.items() if key not in ['doctype', 'docname']}
+			doctype = doc['doctype']
+			docname = doc['docname']
+			doc = frappe.get_doc(doctype, docname)
+			doc.update(ddoc)
+			doc.save()
 		except:
 			failed_docs.append({
 				'doc': doc,
