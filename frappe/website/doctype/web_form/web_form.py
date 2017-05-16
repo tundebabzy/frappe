@@ -206,9 +206,14 @@ def get_context(context):
 		context.params_from_form_dict = ''
 
 		params = {}
-		for key, value in frappe.form_dict.iteritems():
-			if frappe.get_meta(self.doc_type).get_field(key):
-				params[key] = value
+		try:
+			for key, value in frappe.form_dict.iteritems():
+				if frappe.get_meta(self.doc_type).get_field(key):
+					params[key] = value
+		except AttributeError:
+			for key, value in frappe.form_dict.items():
+				if frappe.get_meta(self.doc_type).get_field(key):
+					params[key] = value
 
 		if params:
 			context.params_from_form_dict = '&' + urlencode(params)
