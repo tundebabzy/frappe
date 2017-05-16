@@ -190,12 +190,20 @@ def get_full_index(route=None, app=None):
 		pages = get_pages(app=app)
 
 		# make children map
-		for route, page_info in pages.iteritems():
-			parent_route = os.path.dirname(route)
-			children_map.setdefault(parent_route, []).append(page_info)
+		try:
+			for route, page_info in pages.iteritems():
+				parent_route = os.path.dirname(route)
+				children_map.setdefault(parent_route, []).append(page_info)
 
-			if frappe.flags.local_docs:
-				page_info.extn = '.html'
+				if frappe.flags.local_docs:
+					page_info.extn = '.html'
+		except AttributeError:
+			for route, page_info in pages.items():
+				parent_route = os.path.dirname(route)
+				children_map.setdefault(parent_route, []).append(page_info)
+
+				if frappe.flags.local_docs:
+					page_info.extn = '.html'
 
 		# order as per index if present
 		for route, children in children_map.items():
