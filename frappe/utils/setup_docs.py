@@ -497,13 +497,22 @@ class setup_docs(object):
 			"images/up.png": "img/up.png"
 		}
 
-		for source, target in copy_files.iteritems():
-			source_path = frappe.get_app_path("frappe", "public", source)
-			if os.path.isdir(source_path):
-				if not os.path.exists(os.path.join(assets_path, target)):
-					shutil.copytree(source_path, os.path.join(assets_path, target))
-			else:
-				shutil.copy(source_path, os.path.join(assets_path, target))
+		try:
+			for source, target in copy_files.iteritems():
+				source_path = frappe.get_app_path("frappe", "public", source)
+				if os.path.isdir(source_path):
+					if not os.path.exists(os.path.join(assets_path, target)):
+						shutil.copytree(source_path, os.path.join(assets_path, target))
+				else:
+					shutil.copy(source_path, os.path.join(assets_path, target))
+		except AttributeError:
+			for source, target in copy_files.items():
+				source_path = frappe.get_app_path("frappe", "public", source)
+				if os.path.isdir(source_path):
+					if not os.path.exists(os.path.join(assets_path, target)):
+						shutil.copytree(source_path, os.path.join(assets_path, target))
+				else:
+					shutil.copy(source_path, os.path.join(assets_path, target))
 
 		# fix path for font-files, background
 		files = (
