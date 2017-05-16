@@ -176,7 +176,10 @@ def load_translations(bootinfo):
 		messages[name] = frappe._(name)
 
 	# only untranslated
-	messages = {k:v for k, v in messages.iteritems() if k!=v}
+	try:
+		messages = {k:v for k, v in messages.iteritems() if k!=v}
+	except AttributeError:
+		messages = {k: v for k, v in messages.items() if k != v}
 
 	bootinfo["__messages"] = messages
 
