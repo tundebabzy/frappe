@@ -370,20 +370,36 @@ def accept(web_form, data, for_payment=False):
 		doc = frappe.new_doc(data.doctype)
 
 	# set values
-	for fieldname, value in data.iteritems():
-		if value and isinstance(value, dict):
-			try:
-				if "__file_attachment" in value:
-					files.append((fieldname, value))
-					continue
-				if '__no_attachment' in value:
-					files_to_delete.append(doc.get(fieldname))
-					value = ''
+	try:
+		for fieldname, value in data.iteritems():
+			if value and isinstance(value, dict):
+				try:
+					if "__file_attachment" in value:
+						files.append((fieldname, value))
+						continue
+					if '__no_attachment' in value:
+						files_to_delete.append(doc.get(fieldname))
+						value = ''
 
-			except ValueError:
-				pass
+				except ValueError:
+					pass
 
-		doc.set(fieldname, value)
+			doc.set(fieldname, value)
+	except AttributeError:
+		for fieldname, value in data.items():
+			if value and isinstance(value, dict):
+				try:
+					if "__file_attachment" in value:
+						files.append((fieldname, value))
+						continue
+					if '__no_attachment' in value:
+						files_to_delete.append(doc.get(fieldname))
+						value = ''
+
+				except ValueError:
+					pass
+
+			doc.set(fieldname, value)
 
 	if for_payment:
 		web_form.validate_mandatory(doc)
