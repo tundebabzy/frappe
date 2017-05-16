@@ -3,6 +3,7 @@
 
 from __future__ import unicode_literals
 from six.moves import range
+from six import iteritems
 import time, _socket, poplib, imaplib, email, email.utils, datetime, chardet, re, hashlib
 from email_reply_parser import EmailReplyParser
 from email.header import decode_header
@@ -339,14 +340,24 @@ class EmailServer:
 			return
 
 		self.imap.select("Inbox")
-		for uid, operation in uid_list.iteritems():
-			if not uid: continue
+		try:
+			for uid, operation in uid_list.iteritems():
+				if not uid: continue
 
-			op = "+FLAGS" if operation == "Read" else "-FLAGS"
-			try:
-				self.imap.uid('STORE', uid, op, '(\\SEEN)')
-			except Exception as e:
-				continue
+				op = "+FLAGS" if operation == "Read" else "-FLAGS"
+				try:
+					self.imap.uid('STORE', uid, op, '(\\SEEN)')
+				except Exception as e:
+					continue
+		except AttributeError:
+			for uid, operation in uid_list.items():
+				if not uid: continue
+
+				op = "+FLAGS" if operation == "Read" else "-FLAGS"
+				try:
+					self.imap.uid('STORE', uid, op, '(\\SEEN)')
+				except Exception as e:
+					continue
 
 class Email:
 	"""Wrapper for an email."""
