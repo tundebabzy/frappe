@@ -344,9 +344,14 @@ class Document(BaseDocument):
 		def get_values():
 			values = self.as_dict()
 			# format values
-			for key, value in values.iteritems():
-				if value==None:
-					values[key] = ""
+			try:
+				for key, value in values.iteritems():
+					if value==None:
+						values[key] = ""
+			except AttributeError:
+				for key, value in values.items():
+					if value==None:
+						values[key] = ""
 			return values
 
 		if self.meta.get("title_field")=="title":
@@ -361,10 +366,18 @@ class Document(BaseDocument):
 	def update_single(self, d):
 		"""Updates values for Single type Document in `tabSingles`."""
 		frappe.db.sql("""delete from tabSingles where doctype=%s""", self.doctype)
-		for field, value in d.iteritems():
-			if field != "doctype":
-				frappe.db.sql("""insert into tabSingles(doctype, field, value)
-					values (%s, %s, %s)""", (self.doctype, field, value))
+
+		try:
+			for field, value in d.iteritems():
+				if field != "doctype":
+					frappe.db.sql("""insert into tabSingles(doctype, field, value)
+						values (%s, %s, %s)""", (self.doctype, field, value))
+
+		except AttributeError:
+			for field, value in d.items():
+				if field != "doctype":
+					frappe.db.sql("""insert into tabSingles(doctype, field, value)
+						values (%s, %s, %s)""", (self.doctype, field, value))
 
 		if self.doctype in frappe.db.value_cache:
 			del frappe.db.value_cache[self.doctype]
