@@ -34,7 +34,7 @@ beautifulsoup4
 rq
 schedule
 cryptography
-zxcvbn
+zxcvbn-py3
 psutil
 unittest-xml-reporting
 xlwt
