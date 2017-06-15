@@ -90,6 +90,7 @@ frappe.ui.SortSelector = Class.extend({
 	setup_from_doctype: function() {
 		var me = this;
 		var meta = frappe.get_meta(this.doctype);
+		if (!meta) return;
 
 		var { meta_sort_field, meta_sort_order } = this.get_meta_sort_field();
 
@@ -128,7 +129,7 @@ frappe.ui.SortSelector = Class.extend({
 
 			// meta sort field
 			if(meta_sort_field) _options.push({ 'fieldname': meta_sort_field });
-			
+
 			// more default options
 			_options.push(
 				{'fieldname': 'name'},
@@ -155,6 +156,14 @@ frappe.ui.SortSelector = Class.extend({
 	},
 	get_meta_sort_field: function() {
 		var meta = frappe.get_meta(this.doctype);
+
+		if (!meta) {
+			return {
+				meta_sort_field: null,
+				meta_sort_order: null
+			}
+		}
+
 		if(meta.sort_field && meta.sort_field.includes(',')) {
 			var parts = meta.sort_field.split(',')[0].split(' ');
 			return {
@@ -163,8 +172,8 @@ frappe.ui.SortSelector = Class.extend({
 			}
 		} else {
 			return {
-				meta_sort_field: meta.sort_field,
-				meta_sort_order: meta.sort_order.toLowerCase()
+				meta_sort_field: meta.sort_field || 'modified',
+				meta_sort_order: meta.sort_order ? meta.sort_order.toLowerCase() : ''
 			}
 		}
 	},

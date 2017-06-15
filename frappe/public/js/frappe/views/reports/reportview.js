@@ -26,7 +26,7 @@ frappe.views.ReportViewPage = Class.extend({
 
 				frappe.model.with_doc('Report', me.docname, function(r) {
 					me.parent.reportview.set_columns_and_filters(
-						JSON.parse(frappe.get_doc("Report", me.docname).json));
+						JSON.parse(frappe.get_doc("Report", me.docname).json || '{}'));
 					me.parent.reportview.set_route_filters();
 					me.parent.reportview.run();
 				});
@@ -77,7 +77,8 @@ frappe.views.ReportView = frappe.ui.BaseList.extend({
 		this.add_totals_row = 0;
 		this.page = this.parent.page;
 		this._body = $('<div>').appendTo(this.page.main);
-		this.page_title = __('Report')+ ': ' + __(this.docname ? (this.doctype + ' - ' + this.docname) : this.doctype);
+		this.page_title = __('Report')+ ': ' + (this.docname ?  
+			__(this.doctype) + ' - ' + __(this.docname) : __(this.doctype));
 		this.page.set_title(this.page_title);
 		this.init_user_settings();
 		this.make({
@@ -649,8 +650,8 @@ frappe.views.ReportView = frappe.ui.BaseList.extend({
 	// setup sorter
 	make_sorter: function() {
 		var me = this;
-		this.sort_dialog = new frappe.ui.Dialog({title:'Sorting Preferences'});
-		$(this.sort_dialog.body).html('<p class="help">Sort By</p>\
+		this.sort_dialog = new frappe.ui.Dialog({title:__('Sorting Preferences')});
+		$(this.sort_dialog.body).html('<p class="help">'+__('Sort By')+'</p>\
 			<div class="sort-column"></div>\
 			<div><select class="sort-order form-control" style="margin-top: 10px; width: 60%;">\
 				<option value="asc">'+__('Ascending')+'</option>\
@@ -689,7 +690,7 @@ frappe.views.ReportView = frappe.ui.BaseList.extend({
 		this.sort_order_next_select.val('desc');
 
 		// button actions
-		this.page.add_inner_button(__('Set Sort'), function() {
+		this.page.add_inner_button(__('Sort Order'), function() {
 			me.sort_dialog.show();
 		});
 
@@ -723,7 +724,7 @@ frappe.views.ReportView = frappe.ui.BaseList.extend({
 					}
 					open_url_post(frappe.request.url, args);
 
-				}, __("Export Report: " + me.doctype), __("Download"));
+				}, __("Export Report: {0}",[__(me.doctype)]), __("Download"));
 
 		}, true);
 	},
