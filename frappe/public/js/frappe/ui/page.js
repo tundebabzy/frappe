@@ -246,7 +246,7 @@ frappe.ui.Page = Class.extend({
 		var $group = this.inner_toolbar.find('.btn-group[data-label="'+label+'"]');
 		if(!$group.length) {
 			$group = $('<div class="btn-group" data-label="'+label+'" style="margin-left: 10px;">\
-				<button type="button" class="btn btn-default dropdown-toggle btn-xs" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">\
+				<button type="button" class="btn btn-default dropdown-toggle btn-xs hide" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">\
 				'+label+' <span class="caret"></span></button>\
 				<ul class="dropdown-menu" style="margin-top: -8px;"></ul></div>').appendTo(this.inner_toolbar.removeClass("hide"));
 		}
