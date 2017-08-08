@@ -280,6 +280,8 @@ frappe.ui.Page = Class.extend({
 		};
 		if(group) {
 			var $group = this.get_inner_group_button(group);
+			// reveal button if hidden then start adding to list
+			$($group).find('.hide').removeClass("hide");
 			return $('<li><a>'+label+'</a></li>')
 				.on('click', _action)
 				.appendTo($group.find(".dropdown-menu"));
