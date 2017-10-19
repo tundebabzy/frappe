@@ -44,10 +44,15 @@ before_script:
 
 
   - cd ~/frappe-bench/apps/frappe
-  - git branch -l
+  - git fetch upstream v7.x.x
+  - git checkout v7.x.x
   - cd ~/frappe-bench
   - bench use test_site
   - bench reinstall --yes
+  - cd ~/frappe-bench/apps/frappe
+  - git checkout -
+  - cd ~/frappe-bench
+  - bench migrate
   - bench setup-help
   - bench scheduler disable
   - bench start &
