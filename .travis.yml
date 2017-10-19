@@ -25,7 +25,7 @@ install:
   - sudo pip install -e ~/bench
 
   - rm $TRAVIS_BUILD_DIR/.git/shallow
-  - cd ~/ && bench init frappe-bench --frappe-path $TRAVIS_BUILD_DIR --frappe-branch v7.x.x
+  - cd ~/ && bench init frappe-bench --frappe-path $TRAVIS_BUILD_DIR
   - cp -r $TRAVIS_BUILD_DIR/test_sites/test_site ~/frappe-bench/sites/
 
 before_script:
@@ -44,7 +44,7 @@ before_script:
 
 
   - cd ~/frappe-bench/apps/frappe
-  - git checkout develop
+  - git branch -l
   - cd ~/frappe-bench
   - bench use test_site
   - bench reinstall --yes
