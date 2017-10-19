@@ -44,8 +44,8 @@ before_script:
 
 
   - cd ~/frappe-bench/apps/frappe
+  - git fetch upstream
   - git branch -a
-  - git fetch upstream v7.x.x
   - git checkout v7.x.x
   - cd ~/frappe-bench
   - bench use test_site
