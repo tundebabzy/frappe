@@ -401,13 +401,19 @@ $.extend(frappe.model, {
 		};
 
 		if(frappe.model.events[doc.doctype]) {
-			tasks.push(() => {
-				return runner(frappe.model.events[doc.doctype][fieldname]);
-			});
+			const events = frappe.model.events[doc.doctype];
 
-			tasks.push(() => {
-				return runner(frappe.model.events[doc.doctype]['*']);
-			});
+			if (events[fieldname]) {
+				tasks.push(() => {
+					return runner(frappe.model.events[doc.doctype][fieldname]);
+				});
+			}
+
+			if (events['*']) {
+				tasks.push(() => {
+					return runner(frappe.model.events[doc.doctype]['*']);
+				});
+			}
 		}
 
 		return frappe.run_serially(tasks);
